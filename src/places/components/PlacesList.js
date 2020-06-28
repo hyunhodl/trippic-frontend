@@ -27,6 +27,7 @@ const PlacesList = (props) => {
                     description={place.description}
                     imageUrl={place.imageUrl}
                     address={place.address}
+                    location={place.location}
                 />
             ))}
         </ul>
