@@ -1,4 +1,4 @@
-import React, { useReducer, useCallback } from "react";
+import React from "react";
 
 import Input from "../../shared/components/FormElements/Input";
 import Button from "../../shared/components/FormElements/Button";
@@ -6,9 +6,9 @@ import {
     VALIDATOR_REQUIRE,
     VALIDATOR_MINLENGTH,
 } from "../../shared/util/validators";
-import useForm from "../../shared/hooks/form-hook";
+import { useForm } from "../../shared/hooks/form-hook";
 
-import "./NewPlace.css";
+import "./PlaceForm.css";
 
 const NewPlace = (props) => {
     const [formState, inputHandler] = useForm(
@@ -66,7 +66,7 @@ const NewPlace = (props) => {
                 onSubmit={placeSubmitHandler}
                 disabled={!formState.isValid}
             >
-                여행지 추가
+                추가
             </Button>
         </form>
     );
