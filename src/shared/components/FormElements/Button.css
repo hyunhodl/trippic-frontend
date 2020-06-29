@@ -8,7 +8,7 @@
     color: #fff;
     cursor: pointer;
     text-decoration: none;
-    margin-right: 1rem;
+    margin: 0 0.5rem;
 }
 
 .button:focus {
