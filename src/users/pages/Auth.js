@@ -3,6 +3,7 @@ import React, { useState, useContext } from "react";
 import Card from "../../shared/components/UIElements/Card";
 import Input from "../../shared/components/FormElements/Input";
 import Button from "../../shared/components/FormElements/Button";
+import LoadingSpinner from "../../shared/components/UIElements/LoadingSpinner";
 
 import { useForm } from "../../shared/hooks/form-hook";
 import {
@@ -16,6 +17,8 @@ import "./Auth.css";
 const Auth = (props) => {
     const auth = useContext(AuthContext);
     const [isLoginMode, setIsLoginMode] = useState(true);
+    const [isLoading, setIsLoading] = useState(true);
+
     const [formState, inputHandler, setFormData] = useForm(
         {
             email: {
@@ -63,6 +66,7 @@ const Auth = (props) => {
 
     return (
         <Card className="authentication">
+            {isLoading && <LoadingSpinner asOverlay />}
             <h2>{isLoginMode ? "로그인" : "회원가입"}</h2>
             <hr />
             <form onSubmit={authenticationHandler}>
