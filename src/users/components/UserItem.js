@@ -16,11 +16,7 @@ const UserItem = (props) => {
                     </div>
                     <div className="user-item__info">
                         <h2>{props.name}</h2>
-                        {props.placesCount ? (
-                            <h3>{props.placesCount} 장소</h3>
-                        ) : (
-                            <h3>아직 공유 중인 여행지가 없습니다.</h3>
-                        )}
+                        <h3>{props.placesCount} 장소</h3>
                     </div>
                 </Link>
             </Card>

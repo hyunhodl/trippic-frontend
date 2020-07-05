@@ -13,13 +13,13 @@ import {
     VALIDATOR_REQUIRE,
 } from "../../shared/util/validators";
 import { AuthContext } from "../../shared/contexts/auth-context";
+import { useHttpClient } from "../../shared/hooks/http-hook";
 import "./Auth.css";
 
 const Auth = (props) => {
     const auth = useContext(AuthContext);
     const [isLoginMode, setIsLoginMode] = useState(true);
-    const [isLoading, setIsLoading] = useState(false);
-    const [error, setError] = useState(null);
+    const { isLoading, error, sendRequest, clearError } = useHttpClient();
 
     const [formState, inputHandler, setFormData] = useForm(
         {
@@ -39,36 +39,32 @@ const Auth = (props) => {
         event.preventDefault();
 
         if (isLoginMode) {
-        } else {
-            try {
-                setIsLoading(true);
-                const response = await fetch(
-                    "http://localhost:5000/api/users/signup",
-                    {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                        },
-                        body: JSON.stringify({
-                            name: formState.inputs.name.value,
-                            email: formState.inputs.email.value,
-                            password: formState.inputs.password.value,
-                        }),
-                    }
-                );
-                const responseData = await response.json();
-                console.log({ responseData });
-                if (!response.ok) {
-                    throw new Error(responseData.message);
-                    // 404, 422 등의 에러를 에러로 인식하지 않아 직접 에러 처리함
-                    // catch 블록으로 넘어간다
-                }
-                setIsLoading(false);
+            await sendRequest(
+                "http://localhost:5000/api/users/login",
+                "POST",
+                {
+                    "Content-Type": "application/json",
+                },
+                JSON.stringify({
+                    email: formState.inputs.email.value,
+                    password: formState.inputs.password.value,
+                })
+            ).then(() => {
                 auth.login();
-            } catch (err) {
-                setError(err.message || "알 수 없는 에러 발생");
-                setIsLoading(false);
-            }
+            });
+        } else {
+            await sendRequest(
+                "http://localhost:5000/api/users/signup",
+                "POST",
+                { "Content-Type": "application/json" },
+                JSON.stringify({
+                    name: formState.inputs.name.value,
+                    email: formState.inputs.email.value,
+                    password: formState.inputs.password.value,
+                })
+            ).then(() => {
+                auth.login();
+            });
         }
     };
 
@@ -97,13 +93,9 @@ const Auth = (props) => {
         setIsLoginMode((prevMode) => !prevMode);
     };
 
-    const errorHandler = () => {
-        setError(null);
-    };
-
     return (
         <React.Fragment>
-            <ErrorModal error={error} onClear={errorHandler} />
+            <ErrorModal error={error} onClear={clearError} />
             <Card className="authentication">
                 {isLoading && <LoadingSpinner asOverlay />}
                 <h2>{isLoginMode ? "로그인" : "회원가입"}</h2>
