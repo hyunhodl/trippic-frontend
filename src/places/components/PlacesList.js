@@ -1,19 +1,19 @@
 import React from "react";
 import PlaceItem from "./PlaceItem";
 import Card from "../../shared/components/UIElements/Card";
+import Button from "../../shared/components/FormElements/Button";
 
 import "./PlacesList.css";
 
 const PlacesList = (props) => {
     if (props.items.length === 0) {
         return (
-            <Card>
-                <h2>
-                    표시할 장소가 없습니다. 나만의 여행지를 다른 사람들과
-                    공유해보세요!
-                </h2>
-                <button>여행지 공유하기</button>
-            </Card>
+            <div className="places-list center">
+                <Card>
+                    <h2>표시할 장소가 없습니다. 새로 등록하시겠습니까?</h2>
+                    <Button to="/places/new">여행지 공유하기</Button>
+                </Card>
+            </div>
         );
     }
 
