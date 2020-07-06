@@ -39,32 +39,34 @@ const Auth = (props) => {
         event.preventDefault();
 
         if (isLoginMode) {
-            await sendRequest(
-                "http://localhost:5000/api/users/login",
-                "POST",
-                {
-                    "Content-Type": "application/json",
-                },
-                JSON.stringify({
-                    email: formState.inputs.email.value,
-                    password: formState.inputs.password.value,
-                })
-            ).then(() => {
-                auth.login();
-            });
+            try {
+                const responseData = await sendRequest(
+                    "http://localhost:5000/api/users/login",
+                    "POST",
+                    {
+                        "Content-Type": "application/json",
+                    },
+                    JSON.stringify({
+                        email: formState.inputs.email.value,
+                        password: formState.inputs.password.value,
+                    })
+                );
+                auth.login(responseData.user.id);
+            } catch (err) {}
         } else {
-            await sendRequest(
-                "http://localhost:5000/api/users/signup",
-                "POST",
-                { "Content-Type": "application/json" },
-                JSON.stringify({
-                    name: formState.inputs.name.value,
-                    email: formState.inputs.email.value,
-                    password: formState.inputs.password.value,
-                })
-            ).then(() => {
-                auth.login();
-            });
+            try {
+                const responseData = await sendRequest(
+                    "http://localhost:5000/api/users/signup",
+                    "POST",
+                    { "Content-Type": "application/json" },
+                    JSON.stringify({
+                        name: formState.inputs.name.value,
+                        email: formState.inputs.email.value,
+                        password: formState.inputs.password.value,
+                    })
+                );
+                auth.login(responseData.user.id);
+            } catch (err) {}
         }
     };
 
