@@ -1,9 +1,14 @@
-import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import React, { useEffect, useState, useContext } from "react";
+import { useParams, useHistory } from "react-router-dom";
 
 import Input from "../../shared/components/FormElements/Input";
 import Button from "../../shared/components/FormElements/Button";
 import Card from "../../shared/components/UIElements/Card";
+import LoadingSpinner from "../../shared/components/UIElements/LoadingSpinner";
+import ErrorModal from "../../shared/components/UIElements/ErrorModal";
+
+import { AuthContext } from "../../shared/contexts/auth-context";
+import { useHttpClient } from "../../shared/hooks/http-hook";
 import { useForm } from "../../shared/hooks/form-hook";
 import {
     VALIDATOR_REQUIRE,
@@ -12,38 +17,12 @@ import {
 
 import "./PlaceForm.css";
 
-const DUMMY_PLACES = [
-    {
-        id: "p1",
-        title: "한밭수목원",
-        description:
-            "대전의 최대 도심지 둔산에 자리잡고 있는 전국 최대의 도심 속 수목원",
-        imageUrl:
-            "https://t1.gstatic.com/images?q=tbn:ANd9GcRIU8S3IVLwc5R1ZyvYbuJvrRPTVTScHsWrXFI-dTgmKnIm3cDMzNOo0_P9dFhLwmrozJet31Pf9TcECQ",
-        address: "대전광역시 서구 둔산동 둔산대로117번길 169",
-        location: {
-            lat: 36.365824,
-            lng: 127.387833,
-        },
-    },
-    {
-        id: "p2",
-        title: "한밭수목금",
-        description:
-            "대전의 최대 도심지 둔산에 자리잡고 있는 전국 최대의 도심 속 수목금토일",
-        imageUrl:
-            "https://t1.gstatic.com/images?q=tbn:ANd9GcRIU8S3IVLwc5R1ZyvYbuJvrRPTVTScHsWrXFI-dTgmKnIm3cDMzNOo0_P9dFhLwmrozJet31Pf9TcECQ",
-        address: "대전광역시 서구 둔산동 둔산대로117번길 169",
-        location: {
-            lat: 36.365824,
-            lng: 127.387833,
-        },
-    },
-];
-
 const UpdatePlace = (props) => {
-    const [isLoading, setIsLoading] = useState(true);
+    const auth = useContext(AuthContext);
+    const { clearError, error, isLoading, sendRequest } = useHttpClient();
+    const [loadedPlace, setLoadedPlace] = useState();
     const placeId = useParams().placeId;
+    const history = useHistory();
 
     const [formState, inputHandler, setFormData] = useForm(
         {
@@ -59,81 +38,101 @@ const UpdatePlace = (props) => {
         false
     );
 
-    const identifiedPlace = DUMMY_PLACES.find((p) => p.id === placeId);
-
     useEffect(() => {
-        if (identifiedPlace) {
-            setFormData(
-                {
-                    title: {
-                        value: identifiedPlace.title,
-                        isValid: true,
+        const fetchPlace = async () => {
+            try {
+                const responseData = await sendRequest(
+                    `http://localhost:5000/api/places/${placeId}`
+                );
+                setLoadedPlace(responseData.place);
+                setFormData(
+                    {
+                        title: {
+                            value: responseData.place.title,
+                            isValid: true,
+                        },
+                        description: {
+                            value: responseData.place.description,
+                            isValid: true,
+                        },
                     },
-                    description: {
-                        value: identifiedPlace.description,
-                        isValid: true,
-                    },
-                },
-                true
-            );
-        }
-        setIsLoading(false);
-    }, [setFormData, identifiedPlace]);
+                    true
+                );
+            } catch (err) {}
+        };
+        fetchPlace();
+    }, [setFormData, placeId, sendRequest]);
 
-    const placeUpdateSubmitHandler = (event) => {
+    const placeUpdateSubmitHandler = async (event) => {
         event.preventDefault();
-        console.log(formState.inputs);
-    };
 
-    if (!identifiedPlace) {
-        return (
-            <div className="center">
-                <div className="center">
-                    <Card>
-                        <h2>장소를 찾을 수 없습니다.</h2>
-                    </Card>
-                </div>
-            </div>
-        );
-    }
+        try {
+            await sendRequest(
+                `http://localhost:5000/api/places/${placeId}`,
+                "PATCH",
+                { "Content-Type": "application/json" },
+                JSON.stringify({
+                    title: formState.inputs.title.value,
+                    description: formState.inputs.description.value,
+                })
+            );
+            history.push(`/${auth.userId}/places`);
+        } catch (err) {}
+    };
 
     if (isLoading) {
         return (
             <div className="center">
+                <LoadingSpinner />
+            </div>
+        );
+    }
+
+    if (!loadedPlace && !error) {
+        return (
+            <div className="center">
                 <Card>
-                    <h2>로딩중...</h2>
+                    <h2>장소를 찾을 수 없습니다.</h2>
                 </Card>
             </div>
         );
     }
 
     return (
-        <form className="place-form" onSubmit={placeUpdateSubmitHandler}>
-            <Input
-                element="input"
-                type="text"
-                id="title"
-                label="제목"
-                onInput={inputHandler}
-                validators={[VALIDATOR_REQUIRE()]}
-                errorText="제목을 입력하세요."
-                initialValue={formState.inputs.title.value}
-                initialValid={formState.inputs.title.isValid}
-            />
-            <Input
-                element="textarea"
-                id="description"
-                label="내용"
-                onInput={inputHandler}
-                validators={[VALIDATOR_MINLENGTH(5)]}
-                errorText="내용을 입력하세요. (최소 5자 이상)"
-                initialValue={formState.inputs.description.value}
-                initialValid={formState.inputs.description.isValid}
-            />
-            <Button type="submit" disabled={!formState.isValid}>
-                수정
-            </Button>
-        </form>
+        <React.Fragment>
+            <ErrorModal error={error} onClear={clearError} />
+            {!isLoading && loadedPlace && (
+                <form
+                    className="place-form"
+                    onSubmit={placeUpdateSubmitHandler}
+                >
+                    <Input
+                        element="input"
+                        type="text"
+                        id="title"
+                        label="제목"
+                        onInput={inputHandler}
+                        validators={[VALIDATOR_REQUIRE()]}
+                        errorText="제목을 입력하세요."
+                        initialValue={loadedPlace.title}
+                        initialValid={true}
+                    />
+                    <Input
+                        element="textarea"
+                        id="description"
+                        label="내용"
+                        onInput={inputHandler}
+                        validators={[VALIDATOR_MINLENGTH(5)]}
+                        errorText="내용을 입력하세요. (최소 5자 이상)"
+                        initialValue={loadedPlace.description}
+                        initialValid={true}
+                    />
+                    <Button type="submit" disabled={!formState.isValid}>
+                        수정
+                    </Button>
+                </form>
+            )}
+        </React.Fragment>
     );
 };
 
