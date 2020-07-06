@@ -53,7 +53,7 @@ const NewPlace = (props) => {
                     creator: auth.userId,
                 })
             );
-            history.push("/");
+            history.push(`/${auth.userId}/places`);
         } catch (err) {}
     };
 
