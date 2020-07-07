@@ -92,10 +92,10 @@ const PlaceItem = (props) => {
                         <Button inverse onClick={openMapHandler}>
                             지도
                         </Button>
-                        {auth.isLoggedIn && (
+                        {auth.userId === props.creatorId && (
                             <Button to={`/places/${props.id}`}>수정</Button>
                         )}
-                        {auth.isLoggedIn && (
+                        {auth.userId === props.creatorId && (
                             <Button danger onClick={showDeleteModalHandler}>
                                 삭제
                             </Button>

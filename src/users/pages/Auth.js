@@ -5,6 +5,7 @@ import Input from "../../shared/components/FormElements/Input";
 import Button from "../../shared/components/FormElements/Button";
 import LoadingSpinner from "../../shared/components/UIElements/LoadingSpinner";
 import ErrorModal from "../../shared/components/UIElements/ErrorModal";
+import ImageUpload from "../../shared/components/FormElements/ImageUpload";
 
 import { useForm } from "../../shared/hooks/form-hook";
 import {
@@ -37,6 +38,8 @@ const Auth = (props) => {
 
     const authSubmitHandler = async (event) => {
         event.preventDefault();
+
+        console.log(formState.inputs);
 
         if (isLoginMode) {
             try {
@@ -79,6 +82,10 @@ const Auth = (props) => {
                         value: "",
                         isValid: false,
                     },
+                    image: {
+                        value: null,
+                        isValid: false,
+                    },
                 },
                 false
             );
@@ -87,6 +94,7 @@ const Auth = (props) => {
                 {
                     ...formState.inputs,
                     name: undefined,
+                    image: undefined,
                 },
                 formState.inputs.email.isValid &&
                     formState.inputs.password.isValid
@@ -113,6 +121,9 @@ const Auth = (props) => {
                             validators={[VALIDATOR_REQUIRE()]}
                             errorText="이름을 입력하세요."
                         />
+                    )}
+                    {!isLoginMode && (
+                        <ImageUpload id="image" center onInput={inputHandler} />
                     )}
                     <Input
                         id="email"
