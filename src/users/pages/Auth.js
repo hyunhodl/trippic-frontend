@@ -125,7 +125,12 @@ const Auth = (props) => {
                         />
                     )}
                     {!isLoginMode && (
-                        <ImageUpload id="image" center onInput={inputHandler} />
+                        <ImageUpload
+                            id="image"
+                            center
+                            onInput={inputHandler}
+                            errorText="사진을 등록하세요."
+                        />
                     )}
                     <Input
                         id="email"
