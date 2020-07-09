@@ -55,10 +55,12 @@ const NewPlace = (props) => {
             formData.append("image", formState.inputs.image.value);
             formData.append("creator", auth.userId);
 
+            console.log(auth.token);
+
             await sendRequest(
                 "http://localhost:5000/api/places",
                 "POST",
-                {},
+                { Authorization: "Bearer " + auth.token },
                 formData
             );
 

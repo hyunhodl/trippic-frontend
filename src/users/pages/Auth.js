@@ -39,8 +39,6 @@ const Auth = (props) => {
     const authSubmitHandler = async (event) => {
         event.preventDefault();
 
-        console.log(formState.inputs);
-
         if (isLoginMode) {
             try {
                 const responseData = await sendRequest(
@@ -54,7 +52,7 @@ const Auth = (props) => {
                         password: formState.inputs.password.value,
                     })
                 );
-                auth.login(responseData.user.id);
+                auth.login(responseData.userId, responseData.token);
             } catch (err) {}
         } else {
             try {
@@ -70,7 +68,7 @@ const Auth = (props) => {
                     formData
                 );
 
-                auth.login(responseData.user.id);
+                auth.login(responseData.userId, responseData.token);
             } catch (err) {}
         }
     };
