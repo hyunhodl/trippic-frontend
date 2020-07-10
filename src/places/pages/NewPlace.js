@@ -58,7 +58,7 @@ const NewPlace = (props) => {
             console.log(auth.token);
 
             await sendRequest(
-                "http://localhost:5000/api/places",
+                `${process.env.REACT_APP_BACKEND_URL}/places`,
                 "POST",
                 { Authorization: "Bearer " + auth.token },
                 formData
