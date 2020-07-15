@@ -55,8 +55,6 @@ const NewPlace = (props) => {
             formData.append("image", formState.inputs.image.value);
             formData.append("creator", auth.userId);
 
-            console.log(auth.token);
-
             await sendRequest(
                 `${process.env.REACT_APP_BACKEND_URL}/places`,
                 "POST",
